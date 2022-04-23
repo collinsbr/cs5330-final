@@ -65,4 +65,4 @@ int draw_axes(std::vector<cv::Vec3f> &points, cv::Vec3f origin, float scale){
   points.push_back(cv::Vec3f(0, 1, 0)); // y axis
 
   return 0; 
-} 
+}
