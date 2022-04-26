@@ -1,42 +1,42 @@
 [
 {
-  "directory": "C:/Users/natej/Documents/GitHub/cs5330-final/build",
-  "command": "C:\\Users\\natej\\mingw-w64\\x86_64-8.1.0-posix-seh-rt_v6-rev0\\mingw64\\bin\\x86_64-w64-mingw32-g++.exe  @CMakeFiles/cam_cal.dir/includes_CXX.rsp -g -o CMakeFiles\\cam_cal.dir\\src\\cal_main.cpp.obj -c C:\\Users\\natej\\Documents\\GitHub\\cs5330-final\\src\\cal_main.cpp",
-  "file": "C:/Users/natej/Documents/GitHub/cs5330-final/src/cal_main.cpp"
+  "directory": "/home/nate/Documents/Spring22/cs5330-final/build",
+  "command": "/usr/bin/g++  -isystem /usr/include/opencv4 -g -o CMakeFiles/cam_cal.dir/src/cal_main.cpp.o -c /home/nate/Documents/Spring22/cs5330-final/src/cal_main.cpp",
+  "file": "/home/nate/Documents/Spring22/cs5330-final/src/cal_main.cpp"
 },
 {
-  "directory": "C:/Users/natej/Documents/GitHub/cs5330-final/build",
-  "command": "C:\\Users\\natej\\mingw-w64\\x86_64-8.1.0-posix-seh-rt_v6-rev0\\mingw64\\bin\\x86_64-w64-mingw32-g++.exe  @CMakeFiles/cam_cal.dir/includes_CXX.rsp -g -o CMakeFiles\\cam_cal.dir\\src\\calibration.cpp.obj -c C:\\Users\\natej\\Documents\\GitHub\\cs5330-final\\src\\calibration.cpp",
-  "file": "C:/Users/natej/Documents/GitHub/cs5330-final/src/calibration.cpp"
+  "directory": "/home/nate/Documents/Spring22/cs5330-final/build",
+  "command": "/usr/bin/g++  -isystem /usr/include/opencv4 -g -o CMakeFiles/cam_cal.dir/src/calibration.cpp.o -c /home/nate/Documents/Spring22/cs5330-final/src/calibration.cpp",
+  "file": "/home/nate/Documents/Spring22/cs5330-final/src/calibration.cpp"
 },
 {
-  "directory": "C:/Users/natej/Documents/GitHub/cs5330-final/build",
-  "command": "C:\\Users\\natej\\mingw-w64\\x86_64-8.1.0-posix-seh-rt_v6-rev0\\mingw64\\bin\\x86_64-w64-mingw32-g++.exe  @CMakeFiles/cam_cal.dir/includes_CXX.rsp -g -o CMakeFiles\\cam_cal.dir\\src\\csv_util.cpp.obj -c C:\\Users\\natej\\Documents\\GitHub\\cs5330-final\\src\\csv_util.cpp",
-  "file": "C:/Users/natej/Documents/GitHub/cs5330-final/src/csv_util.cpp"
+  "directory": "/home/nate/Documents/Spring22/cs5330-final/build",
+  "command": "/usr/bin/g++  -isystem /usr/include/opencv4 -g -o CMakeFiles/cam_cal.dir/src/csv_util.cpp.o -c /home/nate/Documents/Spring22/cs5330-final/src/csv_util.cpp",
+  "file": "/home/nate/Documents/Spring22/cs5330-final/src/csv_util.cpp"
 },
 {
-  "directory": "C:/Users/natej/Documents/GitHub/cs5330-final/build",
-  "command": "C:\\Users\\natej\\mingw-w64\\x86_64-8.1.0-posix-seh-rt_v6-rev0\\mingw64\\bin\\x86_64-w64-mingw32-g++.exe  @CMakeFiles/ar.dir/includes_CXX.rsp -g -o CMakeFiles\\ar.dir\\src\\ar_main.cpp.obj -c C:\\Users\\natej\\Documents\\GitHub\\cs5330-final\\src\\ar_main.cpp",
-  "file": "C:/Users/natej/Documents/GitHub/cs5330-final/src/ar_main.cpp"
+  "directory": "/home/nate/Documents/Spring22/cs5330-final/build",
+  "command": "/usr/bin/g++  -isystem /usr/include/opencv4 -g -o CMakeFiles/ar.dir/src/ar_main.cpp.o -c /home/nate/Documents/Spring22/cs5330-final/src/ar_main.cpp",
+  "file": "/home/nate/Documents/Spring22/cs5330-final/src/ar_main.cpp"
 },
 {
-  "directory": "C:/Users/natej/Documents/GitHub/cs5330-final/build",
-  "command": "C:\\Users\\natej\\mingw-w64\\x86_64-8.1.0-posix-seh-rt_v6-rev0\\mingw64\\bin\\x86_64-w64-mingw32-g++.exe  @CMakeFiles/ar.dir/includes_CXX.rsp -g -o CMakeFiles\\ar.dir\\src\\csv_util.cpp.obj -c C:\\Users\\natej\\Documents\\GitHub\\cs5330-final\\src\\csv_util.cpp",
-  "file": "C:/Users/natej/Documents/GitHub/cs5330-final/src/csv_util.cpp"
+  "directory": "/home/nate/Documents/Spring22/cs5330-final/build",
+  "command": "/usr/bin/g++  -isystem /usr/include/opencv4 -g -o CMakeFiles/ar.dir/src/csv_util.cpp.o -c /home/nate/Documents/Spring22/cs5330-final/src/csv_util.cpp",
+  "file": "/home/nate/Documents/Spring22/cs5330-final/src/csv_util.cpp"
 },
 {
-  "directory": "C:/Users/natej/Documents/GitHub/cs5330-final/build",
-  "command": "C:\\Users\\natej\\mingw-w64\\x86_64-8.1.0-posix-seh-rt_v6-rev0\\mingw64\\bin\\x86_64-w64-mingw32-g++.exe  @CMakeFiles/ar.dir/includes_CXX.rsp -g -o CMakeFiles\\ar.dir\\src\\ar.cpp.obj -c C:\\Users\\natej\\Documents\\GitHub\\cs5330-final\\src\\ar.cpp",
-  "file": "C:/Users/natej/Documents/GitHub/cs5330-final/src/ar.cpp"
+  "directory": "/home/nate/Documents/Spring22/cs5330-final/build",
+  "command": "/usr/bin/g++  -isystem /usr/include/opencv4 -g -o CMakeFiles/ar.dir/src/ar.cpp.o -c /home/nate/Documents/Spring22/cs5330-final/src/ar.cpp",
+  "file": "/home/nate/Documents/Spring22/cs5330-final/src/ar.cpp"
 },
 {
-  "directory": "C:/Users/natej/Documents/GitHub/cs5330-final/build",
-  "command": "C:\\Users\\natej\\mingw-w64\\x86_64-8.1.0-posix-seh-rt_v6-rev0\\mingw64\\bin\\x86_64-w64-mingw32-g++.exe  @CMakeFiles/gather.dir/includes_CXX.rsp -g -o CMakeFiles\\gather.dir\\src\\gather_surfaces.cpp.obj -c C:\\Users\\natej\\Documents\\GitHub\\cs5330-final\\src\\gather_surfaces.cpp",
-  "file": "C:/Users/natej/Documents/GitHub/cs5330-final/src/gather_surfaces.cpp"
+  "directory": "/home/nate/Documents/Spring22/cs5330-final/build",
+  "command": "/usr/bin/g++  -isystem /usr/include/opencv4 -g -o CMakeFiles/gather.dir/src/gather_surfaces.cpp.o -c /home/nate/Documents/Spring22/cs5330-final/src/gather_surfaces.cpp",
+  "file": "/home/nate/Documents/Spring22/cs5330-final/src/gather_surfaces.cpp"
 },
 {
-  "directory": "C:/Users/natej/Documents/GitHub/cs5330-final/build",
-  "command": "C:\\Users\\natej\\mingw-w64\\x86_64-8.1.0-posix-seh-rt_v6-rev0\\mingw64\\bin\\x86_64-w64-mingw32-g++.exe  @CMakeFiles/match.dir/includes_CXX.rsp -g -o CMakeFiles\\match.dir\\src\\match_keypoints.cpp.obj -c C:\\Users\\natej\\Documents\\GitHub\\cs5330-final\\src\\match_keypoints.cpp",
-  "file": "C:/Users/natej/Documents/GitHub/cs5330-final/src/match_keypoints.cpp"
+  "directory": "/home/nate/Documents/Spring22/cs5330-final/build",
+  "command": "/usr/bin/g++  -isystem /usr/include/opencv4 -g -o CMakeFiles/match.dir/src/match_keypoints.cpp.o -c /home/nate/Documents/Spring22/cs5330-final/src/match_keypoints.cpp",
+  "file": "/home/nate/Documents/Spring22/cs5330-final/src/match_keypoints.cpp"
 }
 ]

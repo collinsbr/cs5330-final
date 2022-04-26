@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.0)
-project(proj04)
+cmake_minimum_required(VERSION 3.1)
+project(FinalProject)
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin)
 

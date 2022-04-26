@@ -1,6 +1,6 @@
-C:/Users/natej/Documents/GitHub/cs5330-final/build/CMakeFiles/cam_cal.dir
-C:/Users/natej/Documents/GitHub/cs5330-final/build/CMakeFiles/ar.dir
-C:/Users/natej/Documents/GitHub/cs5330-final/build/CMakeFiles/gather.dir
-C:/Users/natej/Documents/GitHub/cs5330-final/build/CMakeFiles/match.dir
-C:/Users/natej/Documents/GitHub/cs5330-final/build/CMakeFiles/edit_cache.dir
-C:/Users/natej/Documents/GitHub/cs5330-final/build/CMakeFiles/rebuild_cache.dir
+/home/nate/Documents/Spring22/cs5330-final/build/CMakeFiles/cam_cal.dir
+/home/nate/Documents/Spring22/cs5330-final/build/CMakeFiles/ar.dir
+/home/nate/Documents/Spring22/cs5330-final/build/CMakeFiles/gather.dir
+/home/nate/Documents/Spring22/cs5330-final/build/CMakeFiles/match.dir
+/home/nate/Documents/Spring22/cs5330-final/build/CMakeFiles/edit_cache.dir
+/home/nate/Documents/Spring22/cs5330-final/build/CMakeFiles/rebuild_cache.dir

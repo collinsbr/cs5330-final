@@ -29,11 +29,13 @@ int main(int argc, char *argv[]) {
                   (int) capdev->get(cv::CAP_PROP_FRAME_HEIGHT));
   printf("Expected size: %d %d\n", refS.width, refS.height);
   
-  cv::namedWindow("Gather Plane Data", 1); 
+  std::string winName = "Gather Plane Data"; 
+  cv::namedWindow(winName, 1); 
   cv::Mat frame;
   cv::Mat dst; 
   cv::Mat gray; 
   cv::Mat prev_image; 
+  
   for(;;) {
     *capdev >> frame; // get a new frame from the camera, treat as a stream
     if( frame.empty() ) {
@@ -52,12 +54,14 @@ int main(int argc, char *argv[]) {
 
     
     // Convert to grayscale
-    cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY); 
+    //cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY); 
     std::vector<cv::KeyPoint> keypoints; 
     cv::Mat descriptors; 
-    orb->detectAndCompute( gray, cv::noArray(), keypoints, descriptors );
-    cv::drawKeypoints(gray, keypoints, dst); 
-    cv::imshow("Gather Plane Data", dst);
+    orb->detectAndCompute( frame, cv::noArray(), keypoints, descriptors );
+    cv::drawKeypoints(frame, keypoints, dst); 
+    cv::imshow(winName, dst);
+
+    
 
     // check for quitting
     char keyEx = cv::waitKeyEx(10); 
@@ -68,7 +72,6 @@ int main(int argc, char *argv[]) {
       std::string path = "./out_imgs/ex" + std::to_string(id) + ".png"; 
       cv::imwrite(path, dst); 
     } else if (keyEx == 'm') {
-      printf("Yo\n"); 
       int id = std::rand() % 100; 
       std::string path = "./model_images/model" + std::to_string(id) + ".png";
       cv::imwrite(path, gray); 
