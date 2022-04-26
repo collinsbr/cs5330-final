@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/nate/Documents/Spring22/cs5330-final/src/gather_surfaces.cpp" "CMakeFiles/gather.dir/src/gather_surfaces.cpp.o" "gcc" "CMakeFiles/gather.dir/src/gather_surfaces.cpp.o.d"
+  "C:/Users/natej/Documents/GitHub/cs5330-final/src/gather_surfaces.cpp" "CMakeFiles/gather.dir/src/gather_surfaces.cpp.obj" "gcc" "CMakeFiles/gather.dir/src/gather_surfaces.cpp.obj.d"
   )
 
 # Targets to which this target links.

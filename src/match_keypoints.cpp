@@ -78,7 +78,8 @@ int main(int argc, char *argv[]) {
         std::string name = entry->d_name; 
         if(name.compare(".") == 0 || name.compare("..") == 0) continue; 
         std::string path = dn_models + name; 
-        model = cv::imread(path, cv::IMREAD_GRAYSCALE);
+        cv::Mat model_raw = cv::imread(path, cv::IMREAD_GRAYSCALE);
+        cv::resize(model_raw, model, cv::Size(640, 480)); 
         orb -> detectAndCompute( model, cv::noArray(), keypoints_model, descriptors_model); // get keypoints and descriptors from the model 
       }
     } else {
@@ -98,10 +99,7 @@ int main(int argc, char *argv[]) {
     if(descriptors_scene.empty()) {
       printf("no descriptors in scene\n"); 
       frame.copyTo(gray); 
-      cv::imshow(winName, gray);
-      continue; 
-    } 
-
+      cv::imshow(winName, gray); continue; } 
     // Help from: https://stackoverflow.com/questions/29694490/flann-error-in-opencv-3
     // Convert to floats for the FLANN matcher
     if(descriptors_model.type() != CV_32F) {
@@ -114,7 +112,7 @@ int main(int argc, char *argv[]) {
     matcher->knnMatch(descriptors_model, descriptors_scene, knn_matches, 2);
 
     // Filter matches --> Lowe's ratio test
-    const float thresh = 0.75; 
+    const float thresh = 0.75;  
     std::vector<cv::DMatch> acceptable_matches; 
     for(int i = 0; i < knn_matches.size(); i++) {
       cv::DMatch cur_match_0 = knn_matches[i][0]; 
@@ -134,6 +132,25 @@ int main(int argc, char *argv[]) {
     cv::drawMatches(model, keypoints_model, gray, keypoints_scene, acceptable_matches, dst, 
                     cv::Scalar::all(-1), cv::Scalar::all(-1), std::vector<char>(),
                     cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS); 
+
+    // localize object 
+    std::vector<cv::Point2f> modelpts; 
+    std::vector<cv::Point2f> scenepts; 
+    // get keypoints from query index
+    for(int i = 0; i < acceptable_matches.size(); i++) {
+      modelpts.push_back(keypoints_model[acceptable_matches[i].queryIdx].pt); 
+      scenepts.push_back(keypoints_scene[acceptable_matches[i].trainIdx].pt);
+    }
+
+    cv::Mat homography = cv::findHomography(modelpts, scenepts, cv::RANSAC); 
+
+    // Get the corners from the model
+    std::vector<cv::Point2f> model_corners(4); 
+    model_corners[0] = cv::Point2f( 0, 0 ); 
+    model_corners[1] = cv::Point2f( (float) model.cols, 0 ); 
+    model_corners[2] = cv::Point2f( (float) model.cols, (float) model.rows ); 
+    model_corners[3] = cv::Point2f( 0, float(model.rows) ); 
+
     
     cv::imshow(winName, dst); 
     // Now it's time to find the homography 
