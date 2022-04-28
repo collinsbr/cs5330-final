@@ -1,10 +1,12 @@
 file(REMOVE_RECURSE
-  "../bin/libmatch.dll.a"
-  "../bin/match.exe"
-  "../bin/match.exe.manifest"
+  "../bin/match"
   "../bin/match.pdb"
-  "CMakeFiles/match.dir/src/match_keypoints.cpp.obj"
-  "CMakeFiles/match.dir/src/match_keypoints.cpp.obj.d"
+  "CMakeFiles/match.dir/src/csv_util.cpp.o"
+  "CMakeFiles/match.dir/src/csv_util.cpp.o.d"
+  "CMakeFiles/match.dir/src/linear_algebra.cpp.o"
+  "CMakeFiles/match.dir/src/linear_algebra.cpp.o.d"
+  "CMakeFiles/match.dir/src/match_keypoints.cpp.o"
+  "CMakeFiles/match.dir/src/match_keypoints.cpp.o.d"
 )
 
 # Per-language clean rules from dependency scanning.
