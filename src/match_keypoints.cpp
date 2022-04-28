@@ -15,6 +15,7 @@
 #include <dirent.h>
 #include <opencv2/opencv.hpp>
 #include "../include/csv_util.h"
+#include "../include/linear_algebra.h"
 
 int main(int argc, char *argv[]) {
   cv::VideoCapture *capdev; // open the video device 
@@ -28,12 +29,19 @@ int main(int argc, char *argv[]) {
   cv::Size refS( (int) capdev->get(cv::CAP_PROP_FRAME_WIDTH ),
                   (int) capdev->get(cv::CAP_PROP_FRAME_HEIGHT));
   printf("Expected size: %d %d\n", refS.width, refS.height);
+
+  // Delcare calibration data
+  cv::Mat cam_mat(3, 3, CV_64FC1); 
+  cv::Mat dist_coef(5, 1, CV_64FC1); 
   
+  read_calibration_data_csv("calibration.csv", cam_mat, dist_coef, 0); 
+
   std::string winName= "Matching"; 
   cv::namedWindow(winName, 1); 
   cv::Mat frame;
   cv::Mat dst; 
   cv::Mat gray; 
+
   for(;;) {
     *capdev >> frame; // get a new frame from the camera, treat as a stream
     if( frame.empty() ) {
@@ -123,16 +131,14 @@ int main(int argc, char *argv[]) {
     }
 
     if(acceptable_matches.size() < 15) {
-      printf("Not sufficient matches\n"); 
       gray.copyTo(dst); 
       cv::imshow(winName, dst); 
       continue; 
     } 
-
-    cv::drawMatches(model, keypoints_model, gray, keypoints_scene, acceptable_matches, dst, 
+   //VISUALIZATION OF KEYPOINTS
+   cv::drawMatches(model, keypoints_model, gray, keypoints_scene, acceptable_matches, dst, 
                     cv::Scalar::all(-1), cv::Scalar::all(-1), std::vector<char>(),
-                    cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS); 
-
+                    cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
     // localize object 
     std::vector<cv::Point2f> modelpts; 
     std::vector<cv::Point2f> scenepts; 
@@ -141,56 +147,80 @@ int main(int argc, char *argv[]) {
       modelpts.push_back(keypoints_model[acceptable_matches[i].queryIdx].pt); 
       scenepts.push_back(keypoints_scene[acceptable_matches[i].trainIdx].pt);
     }
-
-    cv::Mat homography = cv::findHomography(modelpts, scenepts, cv::RANSAC); 
-
+    
+    // Homogrpahy is a 3X3 matrix
+    cv::Mat homography = cv::findHomography(modelpts, scenepts, cv::RANSAC);
     // Get the corners from the model
-    std::vector<cv::Point2f> model_corners(4); 
-    model_corners[0] = cv::Point2f( 0, 0 ); 
-    model_corners[1] = cv::Point2f( (float) model.cols, 0 ); 
-    model_corners[2] = cv::Point2f( (float) model.cols, (float) model.rows ); 
-    model_corners[3] = cv::Point2f( 0, float(model.rows) ); 
+    //std::vector<cv::Point2f> model_corners(4); 
+    //model_corners[0] = cv::Point2f( 0, 0 ); 
+    //model_corners[1] = cv::Point2f( (float) model.cols, 0 ); 
+    //model_corners[2] = cv::Point2f( (float) model.cols, (float) model.rows ); 
+    //model_corners[3] = cv::Point2f( 0, float(model.rows) ); :w
+    //std::vector<cv::Point2f> scene_corners(4); 
+    ///cv::perspectiveTransform(model_corners, scene_corners, homography); 
+    
+    //Draw the lines betwen the corners (mapped object in the scene)
+    //cv::line( dst, scene_corners[0] + cv::Point2f((float)model.cols, 0),
+    //  scene_corners[1] + cv::Point2f((float)model.cols, 0), cv::Scalar(0, 255, 0), 4 );
+    //cv::line( dst, scene_corners[1] + cv::Point2f((float)model.cols, 0),
+    //  scene_corners[2] + cv::Point2f((float)model.cols, 0), cv::Scalar( 0, 255, 0), 4 );
+    //cv::line( dst, scene_corners[2] + cv::Point2f((float)model.cols, 0),
+    //  scene_corners[3] + cv::Point2f((float)model.cols, 0), cv::Scalar( 0, 255, 0), 4 );
+    //cv::line( dst, scene_corners[3] + cv::Point2f((float)model.cols, 0),
+    //  scene_corners[0] + cv::Point2f((float)model.cols, 0), cv::Scalar( 0, 255, 0), 4 );
 
+    // Computer rotation along x and y axis, and the translations 
+    // 1.) Invert homography 
+    invert_values(homography); 
+    
+    // 2.) dot product of multicplicative inverse of the camera parameters and the homography
+    cv::Mat inv_cam_mat = multiplicative_inverse(cam_mat); 
+    cv::Mat rots_and_trans = matrix_multiplication(inv_cam_mat, homography); 
+
+    // Get the columns of the rotoations and translations
+    cv::Mat rot_x_raw = get_column(rots_and_trans, 0); 
+    cv::Mat rot_y_raw = get_column(rots_and_trans, 1); 
+    cv::Mat trans_raw = get_column(rots_and_trans, 2); 
+
+    // normalize the vectors
+    float rot_x_l2 = l2_norm(rot_x_raw); 
+    float rot_y_l2 = l2_norm(rot_y_raw); 
+    float norm_factor = sqrt(rot_x_l2 * rot_y_l2); 
+
+    cv::Mat rot_x_norm = normalize_vector(rot_x_raw, norm_factor); 
+    cv::Mat rot_y_norm = normalize_vector(rot_y_raw, norm_factor); 
+    cv::Mat trans_norm = normalize_vector(trans_raw, norm_factor); 
+
+    // Computer orthonormal basis
+    // C, P, and D are mathematical terms used in the blogs
+    cv::Mat c = add_vectors(rot_x_norm, rot_y_norm); 
+    cv::Mat p = cross_product(rot_x_norm, rot_y_norm); 
+    cv::Mat d = cross_product(c, p);
+
+    float c_l2 = l2_norm(c); 
+    float d_l2 = l2_norm(d); 
+    cv::Mat c_norm = normalize_vector(c, c_l2); // Didnt' need to write those functions evidently
+    cv::Mat d_norm = normalize_vector(d, d_l2); 
+    cv::Mat c_d_union = add_vectors(c_norm, d_norm); 
+    cv::Mat c_d_intersection = subtract_vectors(c_norm, d_norm); 
+
+    const float multiplier = 1.0 / sqrt(2.0);
+    cv::Mat rot_x_final = c_d_union * multiplier;
+    cv::Mat rot_y_final = c_d_intersection * multiplier;
+    cv::Mat rot_z_final = cross_product(rot_x_final, rot_y_final); 
+
+    std::vector<cv::Mat> matricies {
+      rot_x_final, 
+      rot_y_final,
+      rot_z_final, 
+      trans_norm
+    }; 
+
+    cv::Mat stacked = stack(matricies); 
+    cv::Mat stacked_transposed = stacked.t(); // Transposes the stacked matrix
+    cv::Mat projection = cam_mat * stacked_transposed; 
     
     cv::imshow(winName, dst); 
-    // Now it's time to find the homography 
-    // This section adds 
-    //std::vector<cv::Point2f> src_points; 
-    //std::vector<cv::Point2f> dst_points; 
-    //for(int i = 0; i < best_matches.size(); i++) {
-      //cv::DMatch match = best_matches[i]; 
-      //src_points.push_back(keypoints_model[match.queryIdx].pt); 
-      //dst_points.push_back(keypoints_scene[match.queryIdx].pt); 
-    //}
-    //cv::Mat homography = cv::findHomography(src_points, dst_points, cv::RANSAC, 5.0); // Testing homography 
-    //int height= model.rows; 
-    //int width = model.cols; 
-    //std::vector<cv::Point2f> points {
-      //cv::Point2f(0, 0), 
-      //cv::Point2f(0, height - 1), 
-      //cv::Point2f(width - 1, height - 1), 
-      //cv::Point2f(width - 1, 0)
-    //};
-
-    /*
-    //Project corners onto frame
-    cv::Mat pt_out; 
-    cv::perspectiveTransform(points, pt_out, homography); 
-    printf("%d\n", pt_out.type()); 
-
-    cv::Mat pt_out_int(pt_out.size(), CV_32S); 
-    printf("%d %d\n", pt_out.size().width, pt_out.size().height); 
-    printf("%.4f\n", pt_out.at<cv::Point2f>(0, 0).x); 
-    printf("%.4f\n", pt_out.at<cv::Point2f>(0, 0).y); 
-    for(int i = 0; i < pt_out.rows; i++) {
-      for(int j = 0; j < pt_out.cols; j++) {
-        pt_out_int.at<cv::Point2i>(i, j).x = (int) pt_out.at<cv::Point2f>(i, j).x; 
-        pt_out_int.at<cv::Point2i>(i, j).y = (int) pt_out.at<cv::Point2f>(i, j).y; 
-      }
-    }
-
-    cv::polylines(frame, pt_out, true, 255, 3); 
-    */
     // check for quitting
     char keyEx = cv::waitKeyEx(10); 
     if(keyEx == 'q') {
