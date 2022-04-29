@@ -1,8 +1,10 @@
 file(REMOVE_RECURSE
-  "../bin/gather"
+  "../bin/gather.exe"
+  "../bin/gather.exe.manifest"
   "../bin/gather.pdb"
-  "CMakeFiles/gather.dir/src/gather_surfaces.cpp.o"
-  "CMakeFiles/gather.dir/src/gather_surfaces.cpp.o.d"
+  "../bin/libgather.dll.a"
+  "CMakeFiles/gather.dir/src/gather_surfaces.cpp.obj"
+  "CMakeFiles/gather.dir/src/gather_surfaces.cpp.obj.d"
 )
 
 # Per-language clean rules from dependency scanning.

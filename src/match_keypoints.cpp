@@ -16,6 +16,7 @@
 #include <opencv2/opencv.hpp>
 #include "../include/csv_util.h"
 #include "../include/linear_algebra.h"
+#include "../include/ar.h"
 
 int main(int argc, char *argv[]) {
   cv::VideoCapture *capdev; // open the video device 
@@ -136,9 +137,9 @@ int main(int argc, char *argv[]) {
       continue; 
     } 
    //VISUALIZATION OF KEYPOINTS
-   cv::drawMatches(model, keypoints_model, gray, keypoints_scene, acceptable_matches, dst, 
-                    cv::Scalar::all(-1), cv::Scalar::all(-1), std::vector<char>(),
-                    cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+   //cv::drawMatches(model, keypoints_model, gray, keypoints_scene, acceptable_matches, dst, 
+                    //cv::Scalar::all(-1), cv::Scalar::all(-1), std::vector<char>(),
+                    //cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
     // localize object 
     std::vector<cv::Point2f> modelpts; 
     std::vector<cv::Point2f> scenepts; 
@@ -148,40 +149,83 @@ int main(int argc, char *argv[]) {
       scenepts.push_back(keypoints_scene[acceptable_matches[i].trainIdx].pt);
     }
     
+    frame.copyTo(dst); 
+
+    cv::Mat rotations; 
+    cv::Mat translations;
+    std::vector<cv::Point2f> image_points;    
     // Homogrpahy is a 3X3 matrix
     cv::Mat homography = cv::findHomography(modelpts, scenepts, cv::RANSAC);
     // Get the corners from the model
-    //std::vector<cv::Point2f> model_corners(4); 
-    //model_corners[0] = cv::Point2f( 0, 0 ); 
-    //model_corners[1] = cv::Point2f( (float) model.cols, 0 ); 
-    //model_corners[2] = cv::Point2f( (float) model.cols, (float) model.rows ); 
-    //model_corners[3] = cv::Point2f( 0, float(model.rows) ); :w
-    //std::vector<cv::Point2f> scene_corners(4); 
-    ///cv::perspectiveTransform(model_corners, scene_corners, homography); 
+    std::vector<cv::Point2f> model_corners(4); 
+    model_corners[0] = cv::Point2f( 0, 0 ); 
+    model_corners[1] = cv::Point2f( (float) model.cols, 0 ); 
+    model_corners[2] = cv::Point2f( (float) model.cols, (float) model.rows ); 
+    model_corners[3] = cv::Point2f( 0, float(model.rows) );
+    std::vector<cv::Point2f> scene_corners(4); 
+    cv::perspectiveTransform(model_corners, scene_corners, homography); 
     
+    cv::circle( dst, scene_corners[0], 6, {255, 255, 255}); 
+    cv::circle( dst, scene_corners[1], 6, {255, 0, 0}); 
+    cv::circle( dst, scene_corners[2], 6, {0, 255, 0}); 
+    cv::circle( dst, scene_corners[3], 6, {0, 0, 255}); 
+    
+    std::vector<cv::Vec3f> point_set {
+      cv::Vec3f(0, 0, 0), 
+      cv::Vec3f(0, -1, 0),
+      cv::Vec3f(-1, -1, 0),
+      cv::Vec3f(-1, 0, 0)
+    }; 
+
+    cv::solvePnP(point_set, scene_corners, cam_mat, dist_coef, rotations, translations); 
+
+    std::vector<cv::Vec3f> axespoints;  
+    axespoints.push_back( cv::Vec3f(0, 0, 0) );
+    axespoints.push_back( cv::Vec3f(0.5, 0, 0) );
+    axespoints.push_back( cv::Vec3f(0, 0.5, 0) );
+    axespoints.push_back( cv::Vec3f(0, 0, 0.5) );
+    
+    cv::Mat out_axes; 
+    cv::projectPoints( axespoints, rotations, translations, cam_mat, dist_coef, out_axes); 
+    cv::Point oo = cv::Point( out_axes.at<cv::Vec2f>(0,0) );
+    cv::Point ox = cv::Point( out_axes.at<cv::Vec2f>(1,0) );
+    cv::Point oy = cv::Point( out_axes.at<cv::Vec2f>(2,0) );
+    cv::Point oz = cv::Point( out_axes.at<cv::Vec2f>(3,0) );
+    cv::circle( dst, oo, 6, {255, 0, 0} );
+    cv::circle( dst, oo, 8, {255, 0, 0} );
+    cv::circle( dst, ox, 6, {255, 0, 255} );
+    cv::circle( dst, ox, 8, {255, 0, 255} );
+    cv::arrowedLine( dst, oo, ox, { 0, 0, 255 }, 2);
+    cv::arrowedLine( dst, oo, oy, { 0, 255, 0 }, 2 );
+    cv::arrowedLine( dst, oo, oz, { 255, 0, 0 }, 2 );
+
     //Draw the lines betwen the corners (mapped object in the scene)
-    //cv::line( dst, scene_corners[0] + cv::Point2f((float)model.cols, 0),
-    //  scene_corners[1] + cv::Point2f((float)model.cols, 0), cv::Scalar(0, 255, 0), 4 );
-    //cv::line( dst, scene_corners[1] + cv::Point2f((float)model.cols, 0),
-    //  scene_corners[2] + cv::Point2f((float)model.cols, 0), cv::Scalar( 0, 255, 0), 4 );
-    //cv::line( dst, scene_corners[2] + cv::Point2f((float)model.cols, 0),
-    //  scene_corners[3] + cv::Point2f((float)model.cols, 0), cv::Scalar( 0, 255, 0), 4 );
-    //cv::line( dst, scene_corners[3] + cv::Point2f((float)model.cols, 0),
-    //  scene_corners[0] + cv::Point2f((float)model.cols, 0), cv::Scalar( 0, 255, 0), 4 );
+//    cv::line( dst, scene_corners[0],
+//      scene_corners[1], cv::Scalar(0, 255, 0), 4 );
+//    cv::line( dst, scene_corners[1],
+//      scene_corners[2], cv::Scalar( 0, 255, 0), 4 );
+//    cv::line( dst, scene_corners[2],
+//      scene_corners[3], cv::Scalar( 0, 255, 0), 4 );
+//    cv::line( dst, scene_corners[3],
+//      scene_corners[0], cv::Scalar( 0, 255, 0), 4 );
 
     // Computer rotation along x and y axis, and the translations 
     // 1.) Invert homography 
+    /*
     invert_values(homography); 
+    printf("Homography found\n"); 
     
     // 2.) dot product of multicplicative inverse of the camera parameters and the homography
     cv::Mat inv_cam_mat = multiplicative_inverse(cam_mat); 
     cv::Mat rots_and_trans = matrix_multiplication(inv_cam_mat, homography); 
 
+    printf("Inverted\n"); 
+
     // Get the columns of the rotoations and translations
     cv::Mat rot_x_raw = get_column(rots_and_trans, 0); 
     cv::Mat rot_y_raw = get_column(rots_and_trans, 1); 
     cv::Mat trans_raw = get_column(rots_and_trans, 2); 
-
+    printf("Columns retrieved\n"); 
     // normalize the vectors
     float rot_x_l2 = l2_norm(rot_x_raw); 
     float rot_y_l2 = l2_norm(rot_y_raw); 
@@ -190,7 +234,7 @@ int main(int argc, char *argv[]) {
     cv::Mat rot_x_norm = normalize_vector(rot_x_raw, norm_factor); 
     cv::Mat rot_y_norm = normalize_vector(rot_y_raw, norm_factor); 
     cv::Mat trans_norm = normalize_vector(trans_raw, norm_factor); 
-
+    printf("Rotations and translations normalized\n"); 
     // Computer orthonormal basis
     // C, P, and D are mathematical terms used in the blogs
     cv::Mat c = add_vectors(rot_x_norm, rot_y_norm); 
@@ -207,7 +251,9 @@ int main(int argc, char *argv[]) {
     const float multiplier = 1.0 / sqrt(2.0);
     cv::Mat rot_x_final = c_d_union * multiplier;
     cv::Mat rot_y_final = c_d_intersection * multiplier;
-    cv::Mat rot_z_final = cross_product(rot_x_final, rot_y_final); 
+    cv::Mat rot_z_final = cross_product(rot_x_final, rot_y_final);
+
+    printf("Final rotations found\n"); 
 
     std::vector<cv::Mat> matricies {
       rot_x_final, 
@@ -219,6 +265,10 @@ int main(int argc, char *argv[]) {
     cv::Mat stacked = stack(matricies); 
     cv::Mat stacked_transposed = stacked.t(); // Transposes the stacked matrix
     cv::Mat projection = cam_mat * stacked_transposed; 
+
+    printf("projection determined\n"); 
+
+    frame.copyTo(dst); */
     
     cv::imshow(winName, dst); 
     // check for quitting

@@ -51,7 +51,6 @@ int main(int argc, char *argv[]) {
     std::vector<cv::Point2f> image_points; // Image points to project onto the scene
     
     cv::Ptr<cv::ORB> orb = cv::ORB::create(); 
-
     
     // Convert to grayscale
     //cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY); 
