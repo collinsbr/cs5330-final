@@ -96,6 +96,7 @@ int main(int argc, char *argv[]) {
       // project the points and get the image points  
       cv::projectPoints(drawpoints, rotations, translations, cam_mat, distcoeff, image_points);  
       
+    std::vector<cv::Vec3f> point_set;  
       // Draw the lines between the points
       cv::arrowedLine(dst, image_points[0], image_points[1], {255, 0, 0}, 2); // z
       cv::arrowedLine(dst, image_points[0], image_points[2], {0, 255, 0}, 2); // y

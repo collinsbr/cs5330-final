@@ -15,7 +15,7 @@
 void invert_values(cv::Mat &matrix) {
   for(int i = 0; i < matrix.rows; i++) {
     for(int j = 0; j < matrix.cols; j++) {
-      matrix.at<float>(i, j) = -1 * matrix.at<float>(i, j); 
+      matrix.at<double>(i, j) = -1 * matrix.at<double>(i, j); 
     }
   }
 }
@@ -53,10 +53,10 @@ cv::Mat multiplicative_inverse(cv::Mat &matrix) {
  * @return cv::Mat the output
  */
 cv::Mat get_column(const cv::Mat &matrix, const int colnum) {
-  cv::Mat out; 
+  cv::Mat out(cv::Size(1, matrix.rows), CV_64F); 
 
   for(int i = 0; i < matrix.rows; i++) {
-    out.at<float>(0, i) = matrix.at<float>(i, colnum); 
+    out.at<double>(0, i) = matrix.at<double>(i, colnum); 
   }
 
   return out; 
@@ -77,7 +77,6 @@ float l2_norm(const cv::Mat vector) {
   }
 
   return sqrt(sum); 
-
 }
 
 /**
@@ -88,9 +87,9 @@ float l2_norm(const cv::Mat vector) {
  * @return cv::Mat vector that holds normalized values
  */
 cv::Mat normalize_vector(const cv::Mat &vector, const float norm_factor) {
-  cv::Mat out; 
+  cv::Mat out(cv::Size(1, vector.cols), CV_64F); 
   for(int i = 0; i < vector.cols; i++) {
-    out.at<float>(0, i) = ( vector.at<float>(0, i) / norm_factor ); 
+    out.at<double>(0, i) = ( vector.at<double>(0, i) / norm_factor ); 
   }
 
   return out; 
