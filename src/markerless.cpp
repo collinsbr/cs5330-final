@@ -104,9 +104,11 @@ void match_kps(cv::Ptr<cv::DescriptorMatcher> matcher, cv::Mat &desc_scene, cv::
  * @param translations output array of the translations
  * @param cam_mat camera matrix 
  * @param dist_coeffs distortion coefficients
+ * @param scene_corners output array of the corners of the surface in the scene
  */
 void get_rots_and_trans(std::vector<cv::DMatch> &matches, std::vector<cv::KeyPoint> &keypoints_model, std::vector<cv::KeyPoint> &keypoints_scene, 
-                        cv::Mat &model, cv::Mat &rotations, cv::Mat &translations, cv::Mat cam_mat, cv::Mat dist_coeffs) {
+                        cv::Mat &model, cv::Mat &rotations, cv::Mat &translations, cv::Mat cam_mat, cv::Mat dist_coeffs, std::vector<cv::Point2f> &scene_corners) {
+  
   std::vector<cv::Point2f> modelpts; 
   std::vector<cv::Point2f> scenepts; 
 
@@ -124,9 +126,6 @@ void get_rots_and_trans(std::vector<cv::DMatch> &matches, std::vector<cv::KeyPoi
   model_corners[2] = cv::Point2f( (float) model.cols, (float) model.rows ); 
   model_corners[3] = cv::Point2f( 0, float(model.rows) );
   
-  cv::Mat rotations; 
-  cv::Mat translations;
-  std::vector<cv::Point2f> scene_corners(4); 
   cv::perspectiveTransform( model_corners, scene_corners, homography ); 
 
   std::vector<cv::Vec3f> point_set {
@@ -150,10 +149,9 @@ void get_rots_and_trans(std::vector<cv::DMatch> &matches, std::vector<cv::KeyPoi
  * @return int 
  */
 int axes_points(std::vector<cv::Vec3f> &points, cv::Vec3f origin, float scale) {
-  points.push_back(cv::Vec3f(0, 0, 0)); // origin 
-  points.push_back(cv::Vec3f(0, 0, 0.5)); // z axis
-  points.push_back(cv::Vec3f(0.5, 0, 0)); // x axis
-  points.push_back(cv::Vec3f(0, 0.5, 0)); // y axis
-
+  points.push_back( cv::Vec3f(0, 0, 0) );
+  points.push_back( cv::Vec3f(0.5, 0, 0) );
+  points.push_back( cv::Vec3f(0, 0.5, 0) );
+  points.push_back( cv::Vec3f(0, 0, 0.5) );
   return 0; 
 }

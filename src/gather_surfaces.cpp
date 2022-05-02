@@ -44,11 +44,6 @@ int main(int argc, char *argv[]) {
     }  
 
     frame.copyTo(gray);
-    std::vector<cv::Point2f> corner_set; // Image points of the corners of the chessboard
-    std::vector<cv::Vec3f> point_set; // World coords
-    cv::Mat rotations; // Rotational vector
-    cv::Mat translations; // Translational vector
-    std::vector<cv::Point2f> image_points; // Image points to project onto the scene
     
     cv::Ptr<cv::ORB> orb = cv::ORB::create(); 
     
@@ -59,8 +54,6 @@ int main(int argc, char *argv[]) {
     orb->detectAndCompute( frame, cv::noArray(), keypoints, descriptors );
     cv::drawKeypoints(frame, keypoints, dst); 
     cv::imshow(winName, dst);
-
-    
 
     // check for quitting
     char keyEx = cv::waitKeyEx(10); 

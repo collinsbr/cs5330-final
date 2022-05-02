@@ -27,8 +27,14 @@ int main(int argc, char *argv[]) {
   }
 
   bool drawkps = false; 
-  if(strcmp(argv[1], "-d") == 0) {
-    drawkps = true; 
+  if(argc > 1) {
+    if(strcmp(argv[1], "-d") == 0) {
+      printf("In Draw Keypoints Mode\n"); 
+      drawkps = true; 
+    } else {
+      printf("error :: usage : use the flag -d to draw the matching keypoints\n"); 
+      exit(-1); 
+    }
   }
 
   // get some properties of the image
@@ -42,7 +48,7 @@ int main(int argc, char *argv[]) {
   
   read_calibration_data_csv("calibration.csv", cam_mat, dist_coef, 0); 
 
-  std::string winName= "Matching"; 
+  std::string winName= "Markerless AR"; 
   cv::namedWindow(winName, 1); 
   cv::Mat frame;
   cv::Mat dst; 
@@ -64,8 +70,6 @@ int main(int argc, char *argv[]) {
       break;
     }  
 
-    frame.copyTo(gray);
-    
     // Convert to grayscale
     cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY); 
     std::vector<cv::KeyPoint> keypoints_scene; 
@@ -75,55 +79,70 @@ int main(int argc, char *argv[]) {
     // Match the keypoints
     cv::Ptr<cv::DescriptorMatcher> matcher = cv::DescriptorMatcher::create(cv::DescriptorMatcher::FLANNBASED);  
     std::vector<cv::DMatch> acceptable_matches; 
-    
     bool sufficient_matches = false; 
     match_kps(matcher, descriptors_scene, descriptors_model, acceptable_matches, sufficient_matches); 
+    frame.copyTo(dst); 
     
     if(drawkps) {
       cv::drawMatches(model, keypoints_model, gray, keypoints_scene, acceptable_matches, dst, 
                         cv::Scalar::all(-1), cv::Scalar::all(-1), std::vector<char>(),
                         cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
-      continue; 
+      cv::imshow(winName, dst); 
     }
+    else {
+      if(sufficient_matches) {
+        cv::Mat rotations; 
+        cv::Mat translations; 
+        std::vector<cv::Point2f> scene_corners; 
 
-    if(sufficient_matches) {
-      cv::Mat rotations; 
-      cv::Mat translations; 
+        frame.copyTo(dst); 
 
-      frame.copyTo(dst); 
+        get_rots_and_trans(acceptable_matches, keypoints_model, keypoints_scene, model, rotations, translations, cam_mat, dist_coef, scene_corners); 
 
-      get_rots_and_trans(acceptable_matches, keypoints_model, keypoints_scene, model, rotations, translations, cam_mat, dist_coef); 
+        //Draw the lines betwen the corners (mapped object in the scene)
+        //cv::line( dst, scene_corners[0],
+        //  scene_corners[1], cv::Scalar(0, 255, 0), 4 );
+        //cv::line( dst, scene_corners[1],
+        //  scene_corners[2], cv::Scalar( 0, 255, 0), 4 );
+        //cv::line( dst, scene_corners[2],
+        //  scene_corners[3], cv::Scalar( 0, 255, 0), 4 );
+        //cv::line( dst, scene_corners[3],
+        //  scene_corners[0], cv::Scalar( 0, 255, 0), 4 );
+       
+        std::vector<cv::Vec3f> axespoints;  
+        cv::Vec3f origin(0, 0, 0); 
+        axes_points(axespoints, origin, 1.0);
 
-      std::vector<cv::Vec3f> axespoints; 
-      
-      cv::Vec3f origin(0, 0, 0); 
-      axes_points(axespoints, origin, 1.0);
+        cv::Mat out_axes; 
+        cv::projectPoints(axespoints, rotations, translations, cam_mat, dist_coef, out_axes); 
 
-      cv::Mat out_axes; 
-      cv::projectPoints(out_axes, rotations, translations, cam_mat, dist_coef, out_axes); 
+        cv::Point oo = cv::Point( out_axes.at<cv::Vec2f>(0,0) );
+        cv::Point ox = cv::Point( out_axes.at<cv::Vec2f>(1,0) );
+        cv::Point oy = cv::Point( out_axes.at<cv::Vec2f>(2,0) );
+        cv::Point oz = cv::Point( out_axes.at<cv::Vec2f>(3,0) );
+        cv::circle( dst, oo, 6, {255, 0, 0} );
+        cv::circle( dst, oo, 8, {255, 0, 0} );
+        cv::circle( dst, ox, 6, {255, 0, 255} );
+        cv::circle( dst, ox, 8, {255, 0, 255} );
+        cv::arrowedLine( dst, oo, ox, { 0, 0, 255 }, 2);
+        cv::arrowedLine( dst, oo, oy, { 0, 255, 0 }, 2 );
+        cv::arrowedLine( dst, oo, oz, { 255, 0, 0 }, 2 );
 
-      cv::Point oo = cv::Point(out_axes.at<cv::Vec2f>(0, 0)); 
-      cv::Point ox = cv::Point(out_axes.at<cv::Vec2f>(1, 0)); 
-      cv::Point oy = cv::Point(out_axes.at<cv::Vec2f>(2, 0)); 
-      cv::Point oz = cv::Point(out_axes.at<cv::Vec2f>(3, 0)); 
-
-      cv::arrowedLine(dst, oo, ox, {0, 0, 255}, 2); 
-      cv::arrowedLine(dst, oo, oy, {0, 255, 0}, 2); 
-      cv::arrowedLine(dst, oo, oz, {255, 0, 0}, 2); 
-
-      //Draw the lines betwen the corners (mapped object in the scene)
-    } else {
-      frame.copyTo(dst); 
+      } else {
+        frame.copyTo(dst); 
+      }
     }
     
     cv::imshow(winName, dst); 
-    // check for quitting
     char keyEx = cv::waitKeyEx(10); 
     if(keyEx == 'q') {
       break; 
     } else if (keyEx == 's') {
       int id = std::rand() % 100; 
-      std::string path = "./out_imgs/ex" + std::to_string(id) + ".png"; 
+      std::string imgname; 
+      printf("Please enter the name of the images.\n"); 
+      std::cin >> imgname; 
+      std::string path = "./out_imgs/" + imgname + ".png"; 
       cv::imwrite(path, dst); 
     }
   }
