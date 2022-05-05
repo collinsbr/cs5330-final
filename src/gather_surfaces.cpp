@@ -61,11 +61,11 @@ int main(int argc, char *argv[]) {
       break; 
     } else if (keyEx == 's') {
       int id = std::rand() % 100; 
-      std::string path = "./out_imgs/ex" + std::to_string(id) + ".png"; 
+      std::string path = "../out_imgs/ex" + std::to_string(id) + ".png"; 
       cv::imwrite(path, dst); 
     } else if (keyEx == 'm') {
       int id = std::rand() % 100; 
-      std::string path = "./model_images/model" + std::to_string(id) + ".png";
+      std::string path = "../model_images/model" + std::to_string(id) + ".png";
       cv::imwrite(path, gray); 
     }
   }
