@@ -318,7 +318,7 @@ void init()
     GLfloat cyan[] = { 0.0, 1.0, 1.0, 1.0 };
     GLfloat white[] = { 1.0, 1.0, 1.0, 1.0 };
 //    GLfloat direction[] = { -1.0, -1.0, -1.0, 0.0 };
-    GLfloat position[] = { 2.0, 2.0, 2.0, 0.0 };
+    GLfloat position[] = { 0.0, 0.0, 2.0, 0.0 };
     GLfloat dir2[] = { 1.0, -1.0, -1.0, 0.0 };
 
     glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, cyan);

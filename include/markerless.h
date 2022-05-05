@@ -49,8 +49,10 @@ void match_kps(cv::Ptr<cv::DescriptorMatcher> matcher, cv::Mat &desc_scene, cv::
  * @param dist_coeffs distortion coefficients
  * @param scene_corners output array of the corners of the surface in the scene
  */
-void get_rots_and_trans(std::vector<cv::DMatch> &matches, std::vector<cv::KeyPoint> &keypoints_model, std::vector<cv::KeyPoint> &keypoints_scene, 
-                        cv::Mat &model, cv::Mat &rotations, cv::Mat &translations, cv::Mat cam_mat, cv::Mat dist_coeffs, std::vector<cv::Point2f> &scene_corners); 
+void get_rots_and_trans(std::vector<cv::DMatch> &matches, std::vector<cv::KeyPoint> &keypoints_model,
+                        std::vector<cv::KeyPoint> &keypoints_scene, cv::Mat &model, 
+                        cv::Mat &rotations, cv::Mat &translations, cv::Mat cam_mat, 
+                        std::vector<float> dist_coeffs, std::vector<cv::Point2f> &scene_corners); 
 
 /**
  * @brief Function to draw the axes

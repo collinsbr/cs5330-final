@@ -16,22 +16,26 @@
 #include <opencv2/opencv.hpp>
 #include "../include/csv_util.h"
 #include "../include/markerless.h"
-#include "../include/ar.h"
 
 int main(int argc, char *argv[]) {
   cv::VideoCapture *capdev; // open the video device 
   capdev = new cv::VideoCapture(0);
-  if( !capdev->isOpened() ) {
+  if( !capdev->isOpened() )
+  {
     printf("Unable to open video device\n");
     return(-1);
   }
 
   bool drawkps = false; 
-  if(argc > 1) {
-    if(strcmp(argv[1], "-d") == 0) {
+  if(argc > 1)
+  {
+    if(strcmp(argv[1], "-d") == 0)
+    {
       printf("In Draw Keypoints Mode\n"); 
       drawkps = true; 
-    } else {
+    } 
+    else 
+    {
       printf("error :: usage : use the flag -d to draw the matching keypoints\n"); 
       exit(-1); 
     }
@@ -63,9 +67,11 @@ int main(int argc, char *argv[]) {
 
   get_model_kp_desc(orb, model, keypoints_model, descriptors_model); 
 
-  for(;;) {
+  for(;;)
+  {
     *capdev >> frame; // get a new frame from the camera, treat as a stream
-    if( frame.empty() ) {
+    if( frame.empty() )
+    {
       printf("frame is empty\n");
       break;
     }  
@@ -83,21 +89,25 @@ int main(int argc, char *argv[]) {
     match_kps(matcher, descriptors_scene, descriptors_model, acceptable_matches, sufficient_matches); 
     frame.copyTo(dst); 
     
-    if(drawkps) {
+    if(drawkps)
+    {
       cv::drawMatches(model, keypoints_model, gray, keypoints_scene, acceptable_matches, dst, 
                         cv::Scalar::all(-1), cv::Scalar::all(-1), std::vector<char>(),
                         cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
       cv::imshow(winName, dst); 
     }
-    else {
-      if(sufficient_matches) {
+    else
+    {
+      if(sufficient_matches)
+      {
         cv::Mat rotations; 
         cv::Mat translations; 
         std::vector<cv::Point2f> scene_corners; 
 
         frame.copyTo(dst); 
 
-        get_rots_and_trans(acceptable_matches, keypoints_model, keypoints_scene, model, rotations, translations, cam_mat, dist_coef, scene_corners); 
+        get_rots_and_trans(acceptable_matches, keypoints_model, keypoints_scene, model, rotations,
+                           translations, cam_mat, dist_coef, scene_corners); 
 
         //Draw the lines betwen the corners (mapped object in the scene)
         //cv::line( dst, scene_corners[0],

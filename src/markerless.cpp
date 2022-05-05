@@ -17,8 +17,8 @@
  */
 void get_model_kp_desc(cv::Ptr<cv::ORB> detector, cv::Mat &model, std::vector<cv::KeyPoint> &keypoints, cv::Mat &descriptors) {
   // Set up the variables to read the directory to find the reference image 
-  char dirname[] = "./model_images/"; // directory for the model
-  std::string dn_models = "./model_images/"; 
+  char dirname[] = "../model_images/"; // directory for the model
+  std::string dn_models = "../model_images/"; 
   struct dirent *entry = nullptr; 
   DIR *dp = nullptr;
   dp = opendir(dirname); 
@@ -27,8 +27,11 @@ void get_model_kp_desc(cv::Ptr<cv::ORB> detector, cv::Mat &model, std::vector<cv
     while ((entry = readdir(dp))) {
       std::string name = entry->d_name; 
       if(name.compare(".") == 0 || name.compare("..") == 0) continue; 
+      if(name[0] == '.') continue;
       std::string path = dn_models + name; 
+      std::cout << "pathname: " << path << std::endl;
       cv::Mat model_raw = cv::imread(path, cv::IMREAD_GRAYSCALE);
+      printf("model_raw width: %d, height: %d\n", model_raw.size().width, model_raw.size().height);
       cv::resize(model_raw, model, cv::Size(640, 480)); 
       detector -> detectAndCompute( model, cv::noArray(), keypoints, descriptors); // get keypoints and descriptors from the model 
     }
@@ -73,6 +76,9 @@ void match_kps(cv::Ptr<cv::DescriptorMatcher> matcher, cv::Mat &desc_scene, cv::
 
   std::vector< std::vector<cv::DMatch> > knn_matches; 
 
+  printf("model: %d,%d, scene: %d,%d\n", desc_model.size().width, desc_model.size().height,
+                                         desc_scene.size().width, desc_scene.size().height );
+
   matcher->knnMatch(desc_model, desc_scene, knn_matches, 2); // Match the keypoints
 
   // Filter matches --> Lowe's ratio test
@@ -85,7 +91,7 @@ void match_kps(cv::Ptr<cv::DescriptorMatcher> matcher, cv::Mat &desc_scene, cv::
     }
   }
 
-  if(acceptable_matches.size() < 15) {
+  if(acceptable_matches.size() < 18) {
     enough = false; 
     return; 
   } 
@@ -106,25 +112,32 @@ void match_kps(cv::Ptr<cv::DescriptorMatcher> matcher, cv::Mat &desc_scene, cv::
  * @param dist_coeffs distortion coefficients
  * @param scene_corners output array of the corners of the surface in the scene
  */
-void get_rots_and_trans(std::vector<cv::DMatch> &matches, std::vector<cv::KeyPoint> &keypoints_model, std::vector<cv::KeyPoint> &keypoints_scene, 
-                        cv::Mat &model, cv::Mat &rotations, cv::Mat &translations, cv::Mat cam_mat, cv::Mat dist_coeffs, std::vector<cv::Point2f> &scene_corners) {
+void get_rots_and_trans(std::vector<cv::DMatch> &matches, std::vector<cv::KeyPoint> &keypoints_model,
+       std::vector<cv::KeyPoint> &keypoints_scene, cv::Mat &model, cv::Mat &rotations, 
+       cv::Mat &translations, cv::Mat cam_mat, std::vector<float>dist_coeffs, 
+       std::vector<cv::Point2f> &scene_corners) {
   
   std::vector<cv::Point2f> modelpts; 
   std::vector<cv::Point2f> scenepts; 
 
   // get keypoints from query index
+  printf("matches size: %lu\n", matches.size() );
   for(int i = 0; i < matches.size(); i++) {
     modelpts.push_back(keypoints_model[matches[i].queryIdx].pt); 
     scenepts.push_back(keypoints_scene[matches[i].trainIdx].pt);
   }
 
-  cv::Mat homography = cv::findHomography(modelpts, scenepts, cv::RANSAC);
+  cv::Mat homography = cv::findHomography(modelpts, scenepts, cv::LMEDS);
   // Get the corners from the model
   std::vector<cv::Point2f> model_corners(4); 
   model_corners[0] = cv::Point2f( 0, 0 ); 
   model_corners[1] = cv::Point2f( (float) model.cols, 0 ); 
   model_corners[2] = cv::Point2f( (float) model.cols, (float) model.rows ); 
   model_corners[3] = cv::Point2f( 0, float(model.rows) );
+
+  // TODO: remove me
+  printf("model size: %lu, scene size: %lu\n", model_corners.size(), scene_corners.size() );
+  printf("homography size: %d, %d\n", homography.size().width, homography.size().height);
   
   cv::perspectiveTransform( model_corners, scene_corners, homography ); 
 
